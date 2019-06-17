@@ -125,24 +125,6 @@ STATIC_URL = '/static/'
 
 
 #Celery 配置
-CELERY_QUEUES = {
-    'beat_queue':
-        {
-            'exchange':'beat_queue',
-            'exchange_type':'direct',
-            'binding_key':'beat_queue'
-        },
-    'worker_queue':
-        {
-            'exchange': 'worker_queue',
-            'exchange_type': 'direct',
-            'binding_key': 'worker_queue'
-        }
-
-}
-
-#默认使用worker_queue作为消息队列
-CELERY_DEFAULT_QUEUE = 'worker_queue'
 
 
 #不需要手动加入了因为在celery.py中有了app.autodiscover_tasks()
@@ -155,7 +137,7 @@ CELERY_DEFAULT_QUEUE = 'worker_queue'
 #防止死锁
 CELERY_FORCE_EXECV = True
 #设置celery workerbi 并发数
-CELERY_CONCURRENCY= 4
+CELERY_CONCURRENCY= 8
 #如果任务失败的时候允许重试
 CELERY_ACKS_LATE = True
 #设置每个worker最多执行多个任务就可以销毁，防止内存泄漏
@@ -171,3 +153,79 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0' # Broker配置，使用Redis作�
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1' # BACKEND配置，这里使用redis
 
 CELERY_RESULT_SERIALIZER = 'json' # 结果序列化方案
+
+
+
+
+#setting 中设置无效
+# CELERY_QUEUES = {
+#     'deafult':
+#         {
+#             'exchange': 'deafult',
+#             'exchange_type': 'direct',
+#             'binding_key': 'deafult'
+#         },
+#     'beat_queue':
+#         {
+#             'exchange':'beat_queue',
+#             'exchange_type':'direct',
+#             'binding_key':'beat_queue'
+#         },
+#     'worker_queue':
+#         {
+#             'exchange': 'worker_queue',
+#             'exchange_type': 'direct',
+#             'binding_key': 'worker_queue'
+#         }
+#
+# }
+
+
+
+# #默认使用worker_queue作为消息队列
+# CELERY_DEFAULT_QUEUE = 'worker_queue'
+
+# 配置队列
+# CELERY_QUEUES = (
+#     Queue('default', routing_key='default'),
+#     Queue('队列1', routing_key='key1'),
+#     Queue('队列2',  routing_key='key2'),
+# )
+
+# from kombu import Queue,Exchange
+# #设置add队列,绑定routing_key
+# CELERY_QUEUES = (
+#     Queue('default',Exchange('default'), routing_key='default'),
+#     Queue('add_queue', Exchange('add_queue'),routing_key='add_queue'),
+# )
+# #
+# #projq.tasks.add这个任务进去add队列并routeing_key为
+# CELERY_ROUTES = {
+#     'apps.app1.tasks.add': {'queue': 'add_queue'}
+# }
+
+# 配置队列
+# CELERY_QUEUES = (
+#     Queue('default', routing_key='default'),
+#     Queue('队列1', routing_key='key1'),
+#     Queue('队列2', routing_key='key2'),
+# )
+#
+# # 路由（哪个任务放入哪个队列）
+# CELERY_ROUTES = {
+#     '任务1': {'queue': '队列1', 'routing_key': 'key1'},
+#     '任务2': {'queue': '对列2', 'routing_key': 'key2'},
+# }
+
+
+#队列
+# CELERY_QUEUES = (
+# Queue('default', Exchange('default'), routing_key='default', consumer_arguments={'x-priority': 1}),
+# Queue('for_task_A', Exchange('for_task_A'), routing_key='for_task_A', consumer_arguments={'x-priority': 4}),
+# Queue('for_task_B', Exchange('for_task_B'), routing_key='for_task_B', consumer_arguments={'x-priority': 6})
+# )
+
+
+# 为每个task启动不同的worker
+# celery -A tasks worker -l info -n workerA -Q for_tesk_A
+# celery -B tasks worker -l info -n workerB -Q for_task_B

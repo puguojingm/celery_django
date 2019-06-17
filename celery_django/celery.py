@@ -24,40 +24,24 @@ def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
 
-
-
 from celery.schedules import crontab
 from datetime  import timedelta
 
-# app.conf.update(
-#     CELERYBEAT_SCHEDULE = {
-#         'sum-task': {
-#             'task': 'app1.tasks.add',
-#             'schedule':  timedelta(seconds=20),
-#             'args': (5, 6)
-#         },
-#         'send-report': {
-#             'task': 'app1.tasks.mul',
-#             'schedule': crontab(hour=4, minute=30, day_of_week=1),
-#         }
-#     }
-# )
 
 app.conf.beat_schedule = {
-    'add-every-30-seconds': {
+    'xsum-every-30-seconds': {
         'task': 'apps.app1.tasks.xsum',
         'schedule': timedelta(seconds=10),
         'args': ([1,2,3,4],),
-        # 'options':{
-        #     'queue':'beat_queue'
-        # }
+        'options':{
+            'queue':'beat_queue'
+        }
     },
     'add_time_task': {
         'task': 'apps.app1.tasks.mul',
         'schedule': crontab(hour=1, minute=9),# crontab(hour=4, minute=30, day_of_week=1),每周一早上4：30执行report函数
         'args': (5,6)
     }
-
 
 }
 
@@ -90,3 +74,19 @@ minute：分钟
 """
 
 app.conf.timezone = "Asia/Shanghai"
+
+from kombu import Queue,Exchange
+app.conf.task_queues = (
+    Queue('default',Exchange('default'), routing_key='default'),
+    Queue('add_queue', Exchange('add_queue'),routing_key='add_queue'),
+    Queue('mul_queue', Exchange('mul_queue'),routing_key='mul_queue'),
+    Queue('beat_queue', Exchange('beat_queue'),routing_key='beat_queue'),
+)
+
+app.conf.task_routes = {
+    'apps.app1.tasks.add': {'queue': 'add_queue'},
+    'apps.app1.tasks.mul': {'queue': 'mul_queue'},
+}
+
+#改变默认的queue名字
+app.conf.task_default_queue = 'default'
