@@ -6,7 +6,7 @@ asn1crypto==0.24.0
 baidu-aip==2.2.13.0
 billiard==3.6.0.0
 bleach==3.0.2
-celery==4.3.0
+celery==5.2.2
 certifi==2018.8.24
 cffi==1.11.5
 chardet==3.0.4
